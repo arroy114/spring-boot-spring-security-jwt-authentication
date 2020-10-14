@@ -1,5 +1,8 @@
 package com.bezkoder.springjwt.security;
 
+import com.bezkoder.springjwt.security.jwt.AuthEntryPointJwt;
+import com.bezkoder.springjwt.security.jwt.AuthTokenFilter;
+import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,10 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.bezkoder.springjwt.security.jwt.AuthEntryPointJwt;
-import com.bezkoder.springjwt.security.jwt.AuthTokenFilter;
-import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
@@ -54,11 +53,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+
+
+		http.headers().frameOptions().disable();//TODO for using H2, delete in production
+
 		http.cors().and().csrf().disable()
 			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 			.authorizeRequests().antMatchers("/api/auth/**").permitAll()
 			.antMatchers("/api/test/**").permitAll()
+			.antMatchers("/h2-console/**").permitAll() //TODO for using H2, delete in production
 			.anyRequest().authenticated();
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
