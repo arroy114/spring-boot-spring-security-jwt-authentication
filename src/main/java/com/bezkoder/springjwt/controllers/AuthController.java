@@ -57,11 +57,15 @@ public class AuthController {
 		//Generate JWT
 		String jwt = jwtUtils.generateJwtToken(authentication);
 
-		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		//Get UserDetails from Authentication object
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal(); //authentication.getPrincipal() return object of org.springframework.security.core.userdetails.User
+
+		//Get roles from UserDetails
 		List<String> roles = userDetails.getAuthorities().stream()
 				.map(item -> item.getAuthority())
 				.collect(Collectors.toList());
 
+		//Response that contains JWT, id, email and roles
 		return ResponseEntity.ok(new JwtResponse(jwt,
 												 userDetails.getId(),
 												 userDetails.getEmail(),

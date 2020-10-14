@@ -1,12 +1,6 @@
 package com.bezkoder.springjwt.security.jwt;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +11,16 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+//OncePerRequestFilter makes a single execution for each request to our API
+
+//doFilterInternal() method that we will implement parsing & validating JWT,
+//loading User details (using UserDetailsService), checking Authorization (using UsernamePasswordAuthenticationToken).
 
 public class AuthTokenFilter extends OncePerRequestFilter {
 	@Autowired

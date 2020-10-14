@@ -17,6 +17,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		this.userRepository = userRepository;
 	}
 
+
+	//load User by username and
+	// returns a UserDetails object that Spring Security can use for authentication and validation
 	@Override
 	@Transactional
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

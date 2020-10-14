@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+//Catch authentication error
+
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
