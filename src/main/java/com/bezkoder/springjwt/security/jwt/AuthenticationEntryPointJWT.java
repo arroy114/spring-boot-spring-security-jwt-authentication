@@ -11,12 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-//Catch authentication error
+//commence(): catch authentication error
+//Triggered anytime unauthenticated User requests a secured HTTP resource
+//and an AuthenticationException is thrown
 
 @Component
-public class AuthEntryPointJwt implements AuthenticationEntryPoint {
+public class AuthenticationEntryPointJWT implements AuthenticationEntryPoint {
 
-	private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
+	private static final Logger logger = LoggerFactory.getLogger(AuthenticationEntryPointJWT.class);
 
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,

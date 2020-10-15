@@ -1,7 +1,7 @@
 package com.bezkoder.springjwt.security;
 
-import com.bezkoder.springjwt.security.jwt.AuthEntryPointJwt;
 import com.bezkoder.springjwt.security.jwt.AuthTokenFilter;
+import com.bezkoder.springjwt.security.jwt.AuthenticationEntryPointJWT;
 import com.bezkoder.springjwt.security.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,39 +18,44 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(
-		// securedEnabled = true,
-		// jsr250Enabled = true,
-		prePostEnabled = true)
+@EnableWebSecurity //allows Spring to find and automatically apply the class to the global Web Security
+@EnableGlobalMethodSecurity(prePostEnabled = true)//It enables @PreAuthorize, @PostAuthorize
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-	@Autowired
-	UserDetailsServiceImpl userDetailsService;
 
 	@Autowired
-	private AuthEntryPointJwt unauthorizedHandler;
+	UserDetailsServiceImpl userDetailsServiceImpl;
+
+	@Autowired
+	private AuthenticationEntryPointJWT authenticationEntryPointJWT;
 
 	@Bean
-	public AuthTokenFilter authenticationJwtTokenFilter() {
+	public AuthTokenFilter authTokenFilter() {
 		return new AuthTokenFilter();
 	}
 
-	@Override
-	public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-	}
-
+	//AuthenticationManager is used for .authenticate()
 	@Bean
 	@Override
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
 
+	//PasswordEncoder when configuring DaoAuthenticationProvider
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
+	//configuring DaoAuthenticationProvider by AuthenticationManagerBuilder.userDetailsService()
+	@Override
+	public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+		authenticationManagerBuilder.userDetailsService(userDetailsServiceImpl).passwordEncoder(passwordEncoder());
+	}
+
+	//Tells Spring Security how we configure CORS and CSRF
+	//when we want to require all users to be authenticated or not
+	//which filter (AuthTokenFilter) and when we want it to work(filter before UsernamePasswordAuthenticationFilter)
+	//which Exception Handler is chosen (AuthEntryPointJwt)
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
@@ -58,13 +63,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.headers().frameOptions().disable();//TODO for using H2, delete in production
 
 		http.cors().and().csrf().disable()
-			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+				//use AuthEntryPointJwt to handle exception
+			.exceptionHandling().authenticationEntryPoint(authenticationEntryPointJWT).and()
+				//Config session
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-			.authorizeRequests().antMatchers("/api/auth/**").permitAll()
-			.antMatchers("/api/test/**").permitAll()
-			.antMatchers("/h2-console/**").permitAll() //TODO for using H2, delete in production
-			.anyRequest().authenticated();
+				// authorizeRequests that match the following patterns
+			.authorizeRequests()
+				.antMatchers("/api/auth/**").permitAll() //allow all request from /api/auth/**,
+				.antMatchers("/api/test/**").permitAll() //allow all request from /api/test/**, but these api are blocked again in controller by e.g. @PreAuthorize("hasRole('ADMIN')")
+				.antMatchers("/h2-console/**").permitAll() //TODO for using H2, delete in production
+				.anyRequest().authenticated().and()//allow all authenticated request
+				//Tell Spring security to use AuthTokenFilter to filter before using UsernamePasswordAuthenticationFilter
+			.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
-		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-	}
+		}
 }

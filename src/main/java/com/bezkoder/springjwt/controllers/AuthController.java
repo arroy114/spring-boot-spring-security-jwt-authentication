@@ -7,8 +7,8 @@ import com.bezkoder.springjwt.payload.request.LoginRequest;
 import com.bezkoder.springjwt.payload.request.SignupRequest;
 import com.bezkoder.springjwt.payload.response.JwtResponse;
 import com.bezkoder.springjwt.payload.response.MessageResponse;
+import com.bezkoder.springjwt.repository.EmployeeRepository;
 import com.bezkoder.springjwt.repository.RoleRepository;
-import com.bezkoder.springjwt.repository.UserRepository;
 import com.bezkoder.springjwt.security.jwt.JwtUtils;
 import com.bezkoder.springjwt.security.services.UserDetailsImpl;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +33,12 @@ public class AuthController {
 	private final AuthenticationManager authenticationManager; //authenticationManager bean is created by WebSecurityConfig, which uses WebSecurityConfigurerAdapter own authenticationManagerBean
 	private final PasswordEncoder encoder; //encoder bean is created by WebSecurityConfig and method used is BCrypt
 	private final JwtUtils jwtUtils;
-	private final UserRepository userRepository;
+	private final EmployeeRepository employeeRepository;
 	private final RoleRepository roleRepository;
 
-	public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, JwtUtils jwtUtils) {
+	public AuthController(AuthenticationManager authenticationManager, EmployeeRepository employeeRepository, RoleRepository roleRepository, PasswordEncoder encoder, JwtUtils jwtUtils) {
 		this.authenticationManager = authenticationManager;
-		this.userRepository = userRepository;
+		this.employeeRepository = employeeRepository;
 		this.roleRepository = roleRepository;
 		this.encoder = encoder;
 		this.jwtUtils = jwtUtils;
@@ -76,7 +76,7 @@ public class AuthController {
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
 		//Check if email exist by userRepository
-		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+		if (employeeRepository.existsByEmail(signUpRequest.getEmail())) {
 			return ResponseEntity
 					.badRequest()
 					.body(new MessageResponse("Error: Email is already in use!"));
@@ -116,7 +116,7 @@ public class AuthController {
 			});
 		}
 		employee.setRoles(roles);
-		userRepository.save(employee);
+		employeeRepository.save(employee);
 
 		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
 	}

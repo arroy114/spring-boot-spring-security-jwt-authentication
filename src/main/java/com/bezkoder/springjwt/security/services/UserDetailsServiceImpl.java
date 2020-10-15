@@ -1,7 +1,7 @@
 package com.bezkoder.springjwt.security.services;
 
 import com.bezkoder.springjwt.models.Employee;
-import com.bezkoder.springjwt.repository.UserRepository;
+import com.bezkoder.springjwt.repository.EmployeeRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	private final UserRepository userRepository;
+	private final EmployeeRepository employeeRepository;
 
-	public UserDetailsServiceImpl(UserRepository userRepository) {
-		this.userRepository = userRepository;
+	public UserDetailsServiceImpl(EmployeeRepository employeeRepository) {
+		this.employeeRepository = employeeRepository;
 	}
 
 
@@ -23,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	@Transactional
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		Employee employee = userRepository.findByEmail(email)
+		Employee employee = employeeRepository.findByEmail(email)
 				.orElseThrow(() -> new UsernameNotFoundException("Email Not Found with email: " + email));
 
 		return UserDetailsImpl.build(employee);
