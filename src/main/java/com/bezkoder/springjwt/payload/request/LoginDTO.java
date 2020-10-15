@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-public class LoginRequest {
+public class LoginDTO {
 
     @NotBlank
     private String email;

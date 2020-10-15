@@ -10,7 +10,7 @@ import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-public class SignupRequest {
+public class EmployeeDTO {
 
     @NotBlank @Size(max = 50) @Email
     private String email;
