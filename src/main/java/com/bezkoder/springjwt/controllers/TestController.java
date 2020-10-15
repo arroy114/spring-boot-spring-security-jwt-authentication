@@ -1,7 +1,7 @@
 package com.bezkoder.springjwt.controllers;
 
-import com.bezkoder.springjwt.payload.request.LoginDTO;
-import com.bezkoder.springjwt.payload.response.MessageResponse;
+import com.bezkoder.springjwt.payload.request.LogInDTO;
+import com.bezkoder.springjwt.payload.response.MessageDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,7 @@ public class TestController {
 
 	@PostMapping("/test")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> test(@Valid @RequestBody LoginDTO loginDTO) {
-		return ResponseEntity.ok(new MessageResponse(loginDTO.toString()));
+	public ResponseEntity<?> test(@Valid @RequestBody LogInDTO loginDTO) {
+		return ResponseEntity.ok(new MessageDTO(loginDTO.toString()));
 	}
 }

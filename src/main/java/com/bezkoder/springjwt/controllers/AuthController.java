@@ -3,10 +3,10 @@ package com.bezkoder.springjwt.controllers;
 import com.bezkoder.springjwt.models.Employee;
 import com.bezkoder.springjwt.models.Role;
 import com.bezkoder.springjwt.models.RoleEnum;
-import com.bezkoder.springjwt.payload.request.EmployeeDTO;
-import com.bezkoder.springjwt.payload.request.LoginDTO;
-import com.bezkoder.springjwt.payload.response.JwtResponse;
-import com.bezkoder.springjwt.payload.response.MessageResponse;
+import com.bezkoder.springjwt.payload.request.LogInDTO;
+import com.bezkoder.springjwt.payload.request.SignUpDTO;
+import com.bezkoder.springjwt.payload.response.JwtDTO;
+import com.bezkoder.springjwt.payload.response.MessageDTO;
 import com.bezkoder.springjwt.repository.EmployeeRepository;
 import com.bezkoder.springjwt.repository.RoleRepository;
 import com.bezkoder.springjwt.security.jwt.JwtUtils;
@@ -45,7 +45,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/signin")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginDTO loginDTO) {
+	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LogInDTO loginDTO) {
 
 		//Authenticate and return an Authentication object that can be used to find user information
 		Authentication authentication = authenticationManager.authenticate(
@@ -66,28 +66,28 @@ public class AuthController {
 				.collect(Collectors.toList());
 
 		//Response that contains JWT, id, email and roles
-		return ResponseEntity.ok(new JwtResponse(jwt,
+		return ResponseEntity.ok(new JwtDTO(jwt,
 												 userDetails.getId(),
 												 userDetails.getEmail(),
 												 roles));
 	}
 
 	@PostMapping("/signup")
-	public ResponseEntity<?> registerUser(@Valid @RequestBody EmployeeDTO signUpRequest) {
+	public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpDTO signUpDTO) {
 
 		//Check if email exist by userRepository
-		if (employeeRepository.existsByEmail(signUpRequest.getEmail())) {
+		if (employeeRepository.existsByEmail(signUpDTO.getEmail())) {
 			return ResponseEntity
 					.badRequest()
-					.body(new MessageResponse("Error: Email is already in use!"));
+					.body(new MessageDTO("Error: Email is already in use!"));
 		}
 
 		// Create new user's account
-		Employee employee = new Employee(signUpRequest.getEmail(),
-							 encoder.encode(signUpRequest.getPassword())); //encoder bean is created in WebSecurityConfig and method used is BCrypt
+		Employee employee = new Employee(signUpDTO.getEmail(),
+							 encoder.encode(signUpDTO.getPassword())); //encoder bean is created in WebSecurityConfig and method used is BCrypt
 
 		//Adding role to the created employee
-		Set<String> strRoles = signUpRequest.getRole();
+		Set<String> strRoles = signUpDTO.getRoles();
 		Set<Role> roles = new HashSet<>();
 		if (strRoles == null) {
 			Role userRole = roleRepository.findByName(RoleEnum.ROLE_USER)
@@ -118,6 +118,6 @@ public class AuthController {
 		employee.setRoles(roles);
 		employeeRepository.save(employee);
 
-		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+		return ResponseEntity.ok(new MessageDTO("User registered successfully!"));
 	}
 }
